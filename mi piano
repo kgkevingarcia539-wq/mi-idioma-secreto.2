@@ -1,0 +1,427 @@
+import streamlit as st
+import random
+
+# =====================================
+# CONFIGURACIÓN
+# =====================================
+st.set_page_config(
+    page_title="Emoji Music Ultra Pro",
+    page_icon="🎧",
+    layout="centered"
+)
+
+# =====================================
+# ESTILOS CYBERPUNK
+# =====================================
+st.markdown("""
+<style>
+    .stApp {
+        background: linear-gradient(-45deg,
+        #ff0000,
+        #ff7f00,
+        #ffff00,
+        #00ff00,
+        #00ffff,
+        #0000ff,
+        #8b00ff);
+
+        background-size: 400% 400%;
+        animation: rainbow 12s ease infinite;
+    }
+
+    @keyframes rainbow {
+        0% {background-position: 0% 50%;}
+        50% {background-position: 100% 50%;}
+        100% {background-position: 0% 50%;}
+    }
+
+    h1 {
+        text-align:center;
+        color:white;
+        text-shadow:0 0 25px white;
+    }
+
+    .note-box {
+        background: rgba(0,255,255,0.15);
+        border: 2px solid cyan;
+        border-radius: 20px;
+        padding: 20px;
+        margin: 12px 0;
+        text-align:center;
+        font-size:28px;
+        color:white;
+        box-shadow:0 0 15px cyan;
+
+        animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+        from {
+            transform: scale(1);
+            box-shadow:0 0 10px cyan;
+        }
+        to {
+            transform: scale(1.05);
+            box-shadow:0 0 30px magenta;
+        }
+    }
+
+    .stButton button {
+        background: linear-gradient(90deg, cyan, magenta);
+        color:white;
+        border:none;
+        border-radius:14px;
+        height:55px;
+        font-size:18px;
+        font-weight:bold;
+    }
+
+    .titulo {
+        text-align:center;
+        color:white;
+        font-size:22px;
+        margin-bottom:20px;
+    }
+
+</style>
+""", unsafe_allow_html=True)
+
+# =====================================
+# SESSION STATE
+# =====================================
+if "contador" not in st.session_state:
+    st.session_state.contador = 0
+
+if "emojis_input" not in st.session_state:
+    st.session_state.emojis_input = ""
+
+# =====================================
+# SONIDOS
+# =====================================
+sonidos = {
+    "😂": {"nota": "DO", "freq": 261},
+    "🔥": {"nota": "RE", "freq": 293},
+    "💀": {"nota": "MI", "freq": 329},
+    "🎵": {"nota": "FA", "freq": 349},
+    "👽": {"nota": "SOL", "freq": 392},
+    "😎": {"nota": "LA", "freq": 440},
+    "🤖": {"nota": "SI", "freq": 493},
+    "🐉": {"nota": "DO+", "freq": 523},
+    "⚡": {"nota": "RE+", "freq": 587},
+    "🌌": {"nota": "MI+", "freq": 659},
+    "🚀": {"nota": "FA+", "freq": 698}
+}
+
+# =====================================
+# TÍTULO
+# =====================================
+st.title("🎵 Emoji Music Ultra Pro")
+
+st.markdown("""
+<div class="titulo">
+⚡ CYBER DJ SYSTEM ⚡
+</div>
+""", unsafe_allow_html=True)
+
+# =====================================
+# DJ NAME
+# =====================================
+dj = st.text_input(
+    "🎧 Nombre del DJ",
+    placeholder="DJ Galaxy..."
+)
+
+# =====================================
+# VOLUMEN
+# =====================================
+volumen = st.slider(
+    "🔊 Volumen",
+    0.1,
+    1.0,
+    0.6
+)
+
+# =====================================
+# TIPO DE SONIDO
+# =====================================
+tipo_sonido = st.selectbox(
+    "🎹 Tipo de sonido",
+    ["sine", "square", "triangle", "sawtooth"]
+)
+
+# =====================================
+# MODO IA
+# =====================================
+mood = st.selectbox(
+    "🎭 Mood de la canción",
+    ["Feliz", "Oscura", "Épica", "Alien"]
+)
+
+# =====================================
+# GENERADOR IA
+# =====================================
+if st.button("🎲 Generar Melodía IA"):
+
+    if mood == "Feliz":
+        lista = ["😂", "🎵", "😎", "⚡"]
+
+    elif mood == "Oscura":
+        lista = ["💀", "🤖", "🔥"]
+
+    elif mood == "Épica":
+        lista = ["🐉", "⚡", "🚀"]
+
+    else:
+        lista = ["👽", "🌌", "🤖"]
+
+    random_emojis = random.choices(
+        lista,
+        k=random.randint(5, 9)
+    )
+
+    st.session_state.emojis_input = " ".join(random_emojis)
+
+    st.rerun()
+
+# =====================================
+# INPUT
+# =====================================
+texto = st.text_input(
+    "🎹 Escribe emojis separados por espacio:",
+    value=st.session_state.emojis_input,
+    placeholder="😂 🔥 💀 🎵 👽 😎 🤖"
+)
+
+st.session_state.emojis_input = texto
+
+# =====================================
+# BOTONES PIANO
+# =====================================
+st.subheader("🎹 Piano de Emojis")
+
+cols = st.columns(5)
+
+emoji_lista = list(sonidos.keys())
+
+for i, emoji in enumerate(emoji_lista):
+
+    with cols[i % 5]:
+
+        if st.button(emoji):
+
+            if st.session_state.emojis_input == "":
+                st.session_state.emojis_input = emoji
+            else:
+                st.session_state.emojis_input += " " + emoji
+
+            st.rerun()
+
+# =====================================
+# REPRODUCIR
+# =====================================
+if st.button(
+    "▶️ REPRODUCIR MELODÍA",
+    use_container_width=True
+):
+
+    if texto.strip():
+
+        emojis = texto.split()
+
+        melodia = []
+        frecuencias = []
+
+        titulo_cancion = random.choice([
+            "Galaxy Beat",
+            "Alien Party",
+            "Cyber Bass",
+            "Quantum Groove",
+            "Neon Vortex",
+            "Digital Chaos"
+        ])
+
+        st.markdown(f"""
+        <h2 style='text-align:center;color:white;'>
+        🎼 {titulo_cancion}
+        </h2>
+        """, unsafe_allow_html=True)
+
+        st.balloons()
+
+        validos = 0
+
+        for e in emojis:
+
+            if e in sonidos:
+
+                info = sonidos[e]
+
+                melodia.append(info["nota"])
+                frecuencias.append(info["freq"])
+
+                validos += 1
+
+                st.markdown(f"""
+                <div class="note-box">
+                    {e}<br>
+                    🎵 {info['nota']} ({info['freq']} Hz)
+                </div>
+                """, unsafe_allow_html=True)
+
+            else:
+                st.warning(f"Emoji no válido: {e}")
+
+        if validos > 0:
+
+            st.components.v1.html(f"""
+            <button onclick="playMelody()"
+            style="
+            background:linear-gradient(90deg,#00ffff,#ff00ff);
+            color:white;
+            border:none;
+            padding:15px 40px;
+            font-size:18px;
+            border-radius:15px;
+            cursor:pointer;
+            margin-top:20px;
+            ">
+            🔊 ESCUCHAR MELODÍA
+            </button>
+
+            <script>
+
+            function playMelody() {{
+
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+                const freqs = {frecuencias};
+
+                let time = ctx.currentTime;
+
+                freqs.forEach((freq, i) => {{
+
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc.type = "{tipo_sonido}";
+
+                    osc.frequency.value = freq;
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    gain.gain.setValueAtTime({volumen}, time);
+
+                    gain.gain.exponentialRampToValueAtTime(
+                        0.001,
+                        time + 0.7
+                    );
+
+                    osc.start(time);
+                    osc.stop(time + 0.7);
+
+                    time += 0.5;
+
+                }});
+
+            }}
+
+            </script>
+            """, height=130)
+
+            st.success("🎧 ¡Melodía creada!")
+
+            st.info(
+                "🎵 " + " - ".join(melodia)
+            )
+
+            st.metric(
+                "🎼 Canciones creadas",
+                st.session_state.contador + 1
+            )
+
+            st.session_state.contador += 1
+
+            # =====================================
+            # ECUALIZADOR
+            # =====================================
+            st.components.v1.html("""
+            <div style="
+            display:flex;
+            justify-content:center;
+            gap:8px;
+            height:120px;
+            margin:20px 0;
+            ">
+
+                <div class="bar" style="animation-delay:0s"></div>
+                <div class="bar" style="animation-delay:0.1s"></div>
+                <div class="bar" style="animation-delay:0.2s"></div>
+                <div class="bar" style="animation-delay:0.3s"></div>
+                <div class="bar" style="animation-delay:0.4s"></div>
+                <div class="bar" style="animation-delay:0.5s"></div>
+
+            </div>
+
+            <style>
+
+            .bar {
+
+                width:20px;
+
+                background:linear-gradient(
+                cyan,
+                magenta
+                );
+
+                border-radius:10px;
+
+                animation:bounce 0.5s infinite alternate;
+
+            }
+
+            @keyframes bounce {{
+
+                from {{
+                    height:30px;
+                }}
+
+                to {{
+                    height:120px;
+                }}
+
+            }}
+
+            </style>
+            """, height=170)
+
+            # =====================================
+            # DESCARGAR
+            # =====================================
+            st.download_button(
+                "💾 Descargar Melodía",
+                data=texto,
+                file_name="melodia.txt"
+            )
+
+        else:
+            st.error("❌ No hay emojis válidos")
+
+    else:
+        st.warning("⚠️ Escribe emojis")
+
+# =====================================
+# LISTA
+# =====================================
+with st.expander("🎹 Emojis Disponibles"):
+
+    for e, info in sonidos.items():
+
+        st.write(
+            f"{e} → {info['nota']} ({info['freq']} Hz)"
+        )
+
+# =====================================
+# FOOTER
+# =====================================
+st.caption("🚀 Emoji Music Ultra Pro - CYBER DJ EDITION")
